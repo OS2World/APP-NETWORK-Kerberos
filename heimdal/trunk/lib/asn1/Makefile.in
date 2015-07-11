@@ -13,6 +13,11 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
+OS2_LA_NAME=asn1
+OS2_DLL_NAME=asn1
+OS2_DLL_OBJ=$(libasn1_la_OBJECTS:%.lo=%.o) $(dist_libasn1base_la_OBJECTS:%.lo=%.o) $(nodist_libasn1base_la_OBJECTS:%.lo=%.o)
+OS2_DLL_LIBS=$(LIBS) ../roken/.libs/roken.a ../com_err/.libs/com_err.a
+
 @SET_MAKE@
 
 # $Id$
@@ -630,7 +635,7 @@ EXTRA_DIST = \
 	test.gen	\
 	version-script.map
 
-all: $(BUILT_SOURCES)
+all: $(BUILT_SOURCES) $(OS2_DLL_NAME).dll
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
@@ -1471,3 +1476,13 @@ $(srcdir)/der-private.h:
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
+
+$(OS2_DLL_NAME).dll: lib$(OS2_LA_NAME).la
+	cp .libs/$(OS2_LA_NAME).a .libs/$(OS2_LA_NAME)_s.a
+	echo "LIBRARY $(OS2_DLL_NAME) INITINSTANCE TERMINSTANCE" > $(OS2_DLL_NAME).def
+	echo "DATA MULTIPLE" >> $(OS2_DLL_NAME).def
+	echo "EXPORTS" >> $(OS2_DLL_NAME).def
+	emxexp $(OS2_DLL_OBJ) >> $(OS2_DLL_NAME).def
+	gcc -g -Zbin-files -Zhigh-mem -Zomf -Zmap -static-libgcc -Zdll $(OS2_DLL_NAME).def -o $@ $(OS2_DLL_OBJ) $(OS2_DLL_LIBS) 
+	emximp -o .libs/$(OS2_LA_NAME).a $(OS2_DLL_NAME).def
+	emximp -o .libs/$(OS2_LA_NAME).lib $(OS2_DLL_NAME).def

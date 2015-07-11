@@ -659,9 +659,11 @@ doit (void)
 	 * we only do reserved port for IPv4
 	 */
 
+#ifndef __OS2__
 	if (erraddr->sa_family == AF_INET)
 	    errsock = rresvport (&priv_port);
 	else
+#endif
 	    errsock = socket (erraddr->sa_family, SOCK_STREAM, 0);
 	if (errsock < 0)
 	    syslog_and_die ("socket: %s", strerror(errno));

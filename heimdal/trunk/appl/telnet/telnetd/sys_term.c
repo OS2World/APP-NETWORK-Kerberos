@@ -932,8 +932,10 @@ void getptyslave(void)
      * Set the tty modes, and make this our controlling tty.
      */
     set_termbuf();
+#ifndef __OS2__
     if (login_tty(t) == -1)
 	fatalperror(net, "login_tty");
+#endif
     if (net > 2)
 	close(net);
     if (ourpty > 2) {
@@ -1643,6 +1645,7 @@ cleanup(int sig)
 void
 cleanup(int sig)
 {
+#ifndef __OS2__
 #if defined(HAVE_UTMPX_H) || !defined(HAVE_LOGWTMP)
     rmut();
 #ifdef HAVE_VHANGUP
@@ -1661,6 +1664,7 @@ cleanup(int sig)
     *p = 'p';
     chmod(line, 0666);
     chown(line, 0, 0);
+#endif
 #endif
     shutdown(net, 2);
     exit(1);

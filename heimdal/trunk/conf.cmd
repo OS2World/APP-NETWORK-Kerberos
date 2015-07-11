@@ -1,0 +1,2 @@
+set LIBS=-lpthread -lpoll -lhistory -lncurses
+ash ./configure --prefix=/heimdal --disable-shared --disable-afs-support --without-openssl --enable-static --with-readline=/extras --enable-pthread-support 2>&1 | tee configure.log

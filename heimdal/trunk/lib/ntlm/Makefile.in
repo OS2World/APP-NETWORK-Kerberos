@@ -13,6 +13,11 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
+OS2_LA_NAME=heimntlm
+OS2_DLL_NAME=heimntlm
+OS2_DLL_OBJ=$(libheimntlm_la_OBJECTS:%.lo=%.o) 
+OS2_DLL_LIBS=$(LIBS) ../roken/.libs/roken.a ../asn1/.libs/asn1.a ../hcrypto/.libs/hcrypto.a ../wind/.libs/wind.a ../com_err/.libs/com_err.a ../../base/.libs/heimbase.a -lsqlite3 ../hx509/.libs/hx509.a ../ipc/.libs/heim-ipcc.a ../krb5/.libs/krb5.a
+
 @SET_MAKE@
 
 # $Id$
@@ -425,7 +430,7 @@ EXTRA_DIST = \
 CLEANFILES = \
 	ntlm_err.c ntlm_err.h
 
-all: all-am
+all: all-am $(OS2_DLL_NAME).dll
 
 .SUFFIXES:
 .SUFFIXES: .et .h .x .z .hx .1 .3 .5 .8 .cat1 .cat3 .cat5 .cat8 .c .lo .o .obj
@@ -1074,3 +1079,13 @@ ntlm_err.h: ntlm_err.et
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
+
+$(OS2_DLL_NAME).dll: lib$(OS2_LA_NAME).la
+	cp .libs/$(OS2_LA_NAME).a .libs/$(OS2_LA_NAME)_s.a
+	echo "LIBRARY $(OS2_DLL_NAME) INITINSTANCE TERMINSTANCE" > $(OS2_DLL_NAME).def
+	echo "DATA MULTIPLE" >> $(OS2_DLL_NAME).def
+	echo "EXPORTS" >> $(OS2_DLL_NAME).def
+	emxexp $(OS2_DLL_OBJ) >> $(OS2_DLL_NAME).def
+	gcc -g -Zbin-files -Zhigh-mem -Zomf -Zmap -static-libgcc -Zdll $(OS2_DLL_NAME).def -o $@ $(OS2_DLL_OBJ) $(OS2_DLL_LIBS) 
+	emximp -o .libs/$(OS2_LA_NAME).a $(OS2_DLL_NAME).def
+	emximp -o .libs/$(OS2_LA_NAME).lib $(OS2_DLL_NAME).def

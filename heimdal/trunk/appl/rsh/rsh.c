@@ -849,8 +849,10 @@ main(int argc, char **argv)
     uid_t uid;
 
     priv_port1 = priv_port2 = IPPORT_RESERVED-1;
+#ifndef __OS2__
     priv_socket1 = rresvport(&priv_port1);
     priv_socket2 = rresvport(&priv_port2);
+#endif
     uid = getuid ();
     if (setuid (uid) || (uid != 0 && setuid(0) == 0))
 	err (1, "setuid");

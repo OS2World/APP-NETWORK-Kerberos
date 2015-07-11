@@ -86,7 +86,11 @@ stty_default(void)
     termios.c_lflag |= (ISIG|IEXTEN|ICANON|ECHO|ECHOE|ECHOK|ECHOCTL|ECHOKE);
     termios.c_lflag &= ~(ECHOPRT|TOSTOP|FLUSHO);
 
+#ifndef __OS2__
     termios.c_oflag |= (OPOST|ONLCR);
+#else
+    termios.c_oflag |= (OPOST);
+#endif
     termios.c_oflag &= ~OXTABS;
 
     termios.c_cc[VINTR] = Ctl('C');

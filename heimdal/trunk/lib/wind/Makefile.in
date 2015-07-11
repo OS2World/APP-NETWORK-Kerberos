@@ -13,6 +13,11 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
+OS2_LA_NAME=wind
+OS2_DLL_NAME=wind
+OS2_DLL_OBJ=$(libwind_la_OBJECTS:%.lo=%.o) 
+OS2_DLL_LIBS=$(LIBS) ../com_err/.libs/com_err.a
+
 @SET_MAKE@
 
 # $Id: Makefile.am,v 1.1 2004/12/20 08:31:45 assar Exp $
@@ -538,7 +543,7 @@ CLEANFILES = \
 	wind_err.c  \
 	wind_err.h
 
-all: $(BUILT_SOURCES)
+all: $(BUILT_SOURCES) $(OS2_DLL_NAME).dll
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
@@ -1303,3 +1308,13 @@ wind_err.h: wind_err.et
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
+
+$(OS2_DLL_NAME).dll: lib$(OS2_LA_NAME).la
+	cp .libs/$(OS2_LA_NAME).a .libs/$(OS2_LA_NAME)_s.a
+	echo "LIBRARY $(OS2_DLL_NAME) INITINSTANCE TERMINSTANCE" > $(OS2_DLL_NAME).def
+	echo "DATA MULTIPLE" >> $(OS2_DLL_NAME).def
+	echo "EXPORTS" >> $(OS2_DLL_NAME).def
+	emxexp $(OS2_DLL_OBJ) >> $(OS2_DLL_NAME).def
+	gcc -g -Zbin-files -Zhigh-mem -Zomf -Zmap -static-libgcc -Zdll $(OS2_DLL_NAME).def -o $@ $(OS2_DLL_OBJ) $(OS2_DLL_LIBS) 
+	emximp -o .libs/$(OS2_LA_NAME).a $(OS2_DLL_NAME).def
+	emximp -o .libs/$(OS2_LA_NAME).lib $(OS2_DLL_NAME).def

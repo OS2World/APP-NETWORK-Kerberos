@@ -73,7 +73,7 @@ _krb5_xlock(krb5_context context, int fd, krb5_boolean exclusive,
 	    const char *filename)
 {
     int ret;
-#ifdef HAVE_FCNTL
+#if defined(HAVE_FCNTL) && !defined(__OS2__)
     struct flock l;
 
     l.l_start = 0;
@@ -116,7 +116,7 @@ int
 _krb5_xunlock(krb5_context context, int fd)
 {
     int ret;
-#ifdef HAVE_FCNTL
+#if defined(HAVE_FCNTL) && !defined(__OS2__)
     struct flock l;
     l.l_start = 0;
     l.l_len = 0;
@@ -255,6 +255,7 @@ _krb5_erase_file(krb5_context context, const char *filename)
     if (ret < 0)
 	return errno;
 
+#ifndef __OS2__
     fd = open(filename, O_RDWR | O_BINARY);
     if(fd < 0) {
 	if(errno == ENOENT)
@@ -263,11 +264,13 @@ _krb5_erase_file(krb5_context context, const char *filename)
 	    return errno;
     }
     rk_cloexec(fd);
+
     ret = _krb5_xlock(context, fd, 1, filename);
     if (ret) {
 	close(fd);
 	return ret;
     }
+#endif
     if (unlink(filename) < 0) {
 	_krb5_xunlock(context, fd);
         close (fd);

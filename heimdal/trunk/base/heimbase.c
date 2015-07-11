@@ -35,6 +35,9 @@
 
 #include "baselocl.h"
 #include <syslog.h>
+#ifdef __OS2__
+#include <sys/time.h>
+#endif
 
 static heim_base_atomic_type tidglobal = HEIM_TID_USER;
 

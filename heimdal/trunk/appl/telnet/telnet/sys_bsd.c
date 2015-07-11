@@ -355,12 +355,16 @@ TerminalNewMode(int f)
 
     if (f&MODE_ECHO) {
 	tmp_tc.c_lflag |= ECHO;
+#ifndef __OS2__
 	tmp_tc.c_oflag |= ONLCR;
+#endif
 	if (crlf)
 		tmp_tc.c_iflag |= ICRNL;
     } else {
 	tmp_tc.c_lflag &= ~ECHO;
+#ifndef __OS2__
 	tmp_tc.c_oflag &= ~ONLCR;
+#endif
 # ifdef notdef
 	if (crlf)
 		tmp_tc.c_iflag &= ~ICRNL;
